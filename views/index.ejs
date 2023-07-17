@@ -439,22 +439,23 @@
               </div>
             </div>
           </form>
+
           <script>
-            const form = document.querySelector("form");
+            const form = document.getElementById("contact-form");
             const sentDiv = document.getElementById("sent");
             const errDiv = document.getElementById("err");
 
             form.addEventListener("submit", function (event) {
               event.preventDefault();
 
-              const nameInput = document.getElementById("name");
-              const emailInput = document.getElementById("email");
-              const messageInput = document.getElementById("message");
+              const name = document.getElementById("name").value;
+              const email = document.getElementById("email").value;
+              const message = document.getElementById("message").value;
 
               const data = {
-                name: nameInput.value,
-                email: emailInput.value,
-                message: messageInput.value,
+                name,
+                email,
+                message,
               };
 
               fetch("/send-email", {
@@ -467,20 +468,16 @@
                 .then((response) => response.json())
                 .then((result) => {
                   if (result.success) {
-                    // Email sent successfully
                     sentDiv.style.display = "block";
                     errDiv.style.display = "none";
-                    form.reset();
                   } else {
-                    // Failed to send email
-                    errDiv.style.display = "block";
                     sentDiv.style.display = "none";
+                    errDiv.style.display = "block";
                   }
                 })
                 .catch((error) => {
-                  // Handle fetch error
-                  errDiv.style.display = "block";
                   sentDiv.style.display = "none";
+                  errDiv.style.display = "block";
                   console.error(error);
                 });
             });
