@@ -1,0 +1,27 @@
+{
+  "name": "gitcv",
+  "version": "1.0.0",
+  "description": "This is me, my world, my life, my history, what i do in mt life?",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imvake/Alwaleed.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/imvake/Alwaleed/issues"
+  },
+  "homepage": "https://github.com/imvake/Alwaleed#readme",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "nodemailer": "^6.9.3",
+    "nodemailer-mailgun-transport": "^2.1.5"
+  }
+}
