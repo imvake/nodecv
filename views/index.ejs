@@ -93,12 +93,6 @@
         </div>
       </section>
 
-      <div class="container">
-        <article class="hax">
-          <h1 id="headline">Wanted to Thank you for visiting ❤️</h1>
-        </article>
-      </div>
-
       <!--=============== ABOUT ===============-->
       <section class="container section section__height" id="about">
         <h2 class="section__title">About</h2>
@@ -157,6 +151,32 @@
 
       <!--=============== SKILLS ===============-->
       <section class="container section section__height skills" id="skills">
+        <div class="dem">
+          <!-- Explanation in JS tab -->
+
+          <!-- The two texts -->
+          <div id="container">
+            <span id="text1"></span>
+            <span id="text2"></span>
+          </div>
+
+          <!-- The SVG filter used to create the merging effect -->
+          <svg id="filters">
+            <defs>
+              <filter id="threshold">
+                <!-- Basically just a threshold effect - pixels with a high enough opacity are set to full opacity, and all other pixels are set to completely transparent. -->
+                <feColorMatrix
+                  in="SourceGraphic"
+                  type="matrix"
+                  values="1 0 0 0 0
+									0 1 0 0 0
+									0 0 1 0 0
+									0 0 0 255 -140"
+                />
+              </filter>
+            </defs>
+          </svg>
+        </div>
         <h2 class="section__title">Skills</h2>
 
         <input
@@ -439,49 +459,6 @@
               </div>
             </div>
           </form>
-
-          <script>
-            const form = document.getElementById("contact-form");
-            const sentDiv = document.getElementById("sent");
-            const errDiv = document.getElementById("err");
-
-            form.addEventListener("submit", function (event) {
-              event.preventDefault();
-
-              const name = document.getElementById("name").value;
-              const email = document.getElementById("email").value;
-              const message = document.getElementById("message").value;
-
-              const data = {
-                name,
-                email,
-                message,
-              };
-
-              fetch("/send-email", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-              })
-                .then((response) => response.json())
-                .then((result) => {
-                  if (result.success) {
-                    sentDiv.style.display = "block";
-                    errDiv.style.display = "none";
-                  } else {
-                    sentDiv.style.display = "none";
-                    errDiv.style.display = "block";
-                  }
-                })
-                .catch((error) => {
-                  sentDiv.style.display = "none";
-                  errDiv.style.display = "block";
-                  console.error(error);
-                });
-            });
-          </script>
         </section>
       </div>
     </main>
