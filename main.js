@@ -28,7 +28,7 @@ app.post("/send-email", (req, res) => {
 
   // Configure the email options
   const mailOptions = {
-    from: email,
+    from: `${name}`,
     to: "al8hm92@gmail.com",
     subject: "New Contact Form Submission",
     text: `
@@ -42,10 +42,12 @@ app.post("/send-email", (req, res) => {
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.error(error);
-      res.json({ success: false });
+      res.render("index.ejs", { success: false });
+      alert("Error");
     } else {
       console.log("Email sent:", info.response);
-      res.json({ success: true });
+      res.render("index.ejs", { success: true });
+      alert("Email Sent");
     }
   });
 });
