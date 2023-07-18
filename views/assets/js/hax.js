@@ -1,273 +1,87 @@
-function WordShuffler(holder, opt) {
-  var that = this;
-  var time = 0;
-  this.now;
-  this.then = Date.now();
+/*
+	This pen cleverly utilizes SVG filters to create a "Morphing Text" effect. Essentially, it layers 2 text elements on top of each other, and blurs them depending on which text element should be more visible. Once the blurring is applied, both texts are fed through a threshold filter together, which produces the "gooey" effect. Check the CSS - Comment the #container rule's filter out to see how the blurring works!
+*/
 
-  this.delta;
-  this.currentTimeOffset = 0;
+const elts = {
+  text1: document.getElementById("text1"),
+  text2: document.getElementById("text2"),
+};
 
-  this.word = null;
-  this.currentWord = null;
-  this.currentCharacter = 0;
-  this.currentWordLength = 0;
+// The strings to morph between. You can change these to anything you want!
+const texts = ["Please", "Read", "Everything", "in", "My", "Portfolio !!!"];
 
-  var options = {
-    fps: 20,
-    timeOffset: 5,
-    textColor: "#000",
-    fontSize: "50px",
-    useCanvas: false,
-    mixCapital: false,
-    mixSpecialCharacters: false,
-    needUpdate: true,
-    colors: [
-      "#f44336",
-      "#e91e63",
-      "#9c27b0",
-      "#673ab7",
-      "#3f51b5",
-      "#2196f3",
-      "#03a9f4",
-      "#00bcd4",
-      "#009688",
-      "#4caf50",
-      "#8bc34a",
-      "#cddc39",
-      "#ffeb3b",
-      "#ffc107",
-      "#ff9800",
-      "#ff5722",
-      "#795548",
-      "#9e9e9e",
-      "#607d8b",
-    ],
-  };
+// Controls the speed of morphing.
+const morphTime = 1;
+const cooldownTime = 0.25;
 
-  if (typeof opt != "undefined") {
-    for (key in opt) {
-      options[key] = opt[key];
-    }
+let textIndex = texts.length - 1;
+let time = new Date();
+let morph = 0;
+let cooldown = cooldownTime;
+
+elts.text1.textContent = texts[textIndex % texts.length];
+elts.text2.textContent = texts[(textIndex + 1) % texts.length];
+
+function doMorph() {
+  morph -= cooldown;
+  cooldown = 0;
+
+  let fraction = morph / morphTime;
+
+  if (fraction > 1) {
+    cooldown = cooldownTime;
+    fraction = 1;
   }
 
-  this.needUpdate = true;
-  this.fps = options.fps;
-  this.interval = 1000 / this.fps;
-  this.timeOffset = options.timeOffset;
-  this.textColor = options.textColor;
-  this.fontSize = options.fontSize;
-  this.mixCapital = options.mixCapital;
-  this.mixSpecialCharacters = options.mixSpecialCharacters;
-  this.colors = options.colors;
-
-  this.useCanvas = options.useCanvas;
-
-  this.chars = [
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-    "G",
-    "H",
-    "I",
-    "J",
-    "K",
-    "L",
-    "M",
-    "N",
-    "O",
-    "P",
-    "Q",
-    "R",
-    "S",
-    "T",
-    "U",
-    "V",
-    "W",
-    "X",
-    "Y",
-    "Z",
-  ];
-  this.specialCharacters = [
-    "!",
-    "§",
-    "$",
-    "%",
-    "&",
-    "/",
-    "(",
-    ")",
-    "=",
-    "?",
-    "_",
-    "<",
-    ">",
-    "^",
-    "°",
-    "*",
-    "#",
-    "-",
-    ":",
-    ";",
-    "~",
-  ];
-
-  if (this.mixSpecialCharacters) {
-    this.chars = this.chars.concat(this.specialCharacters);
-  }
-
-  this.getRandomColor = function () {
-    var randNum = Math.floor(Math.random() * this.colors.length);
-    return this.colors[randNum];
-  };
-
-  //if Canvas
-
-  this.position = {
-    x: 0,
-    y: 50,
-  };
-
-  //if DOM
-  if (typeof holder != "undefined") {
-    this.holder = holder;
-  }
-
-  if (!this.useCanvas && typeof this.holder == "undefined") {
-    console.warn(
-      "Holder must be defined in DOM Mode. Use Canvas or define Holder"
-    );
-  }
-
-  this.getRandCharacter = function (characterToReplace) {
-    if (characterToReplace == " ") {
-      return " ";
-    }
-    var randNum = Math.floor(Math.random() * this.chars.length);
-    var lowChoice = -0.5 + Math.random();
-    var picketCharacter = this.chars[randNum];
-    var choosen = picketCharacter.toLowerCase();
-    if (this.mixCapital) {
-      choosen = lowChoice < 0 ? picketCharacter.toLowerCase() : picketCharacter;
-    }
-    return choosen;
-  };
-
-  this.writeWord = function (word) {
-    this.word = word;
-    this.currentWord = word.split("");
-    this.currentWordLength = this.currentWord.length;
-  };
-
-  this.generateSingleCharacter = function (color, character) {
-    var span = document.createElement("span");
-    span.style.color = color;
-    span.innerHTML = character;
-    return span;
-  };
-
-  this.updateCharacter = function (time) {
-    this.now = Date.now();
-    this.delta = this.now - this.then;
-
-    if (this.delta > this.interval) {
-      this.currentTimeOffset++;
-
-      var word = [];
-
-      if (
-        this.currentTimeOffset === this.timeOffset &&
-        this.currentCharacter !== this.currentWordLength
-      ) {
-        this.currentCharacter++;
-        this.currentTimeOffset = 0;
-      }
-      for (var k = 0; k < this.currentCharacter; k++) {
-        word.push(this.currentWord[k]);
-      }
-
-      for (var i = 0; i < this.currentWordLength - this.currentCharacter; i++) {
-        word.push(
-          this.getRandCharacter(this.currentWord[this.currentCharacter + i])
-        );
-      }
-
-      if (that.useCanvas) {
-        c.clearRect(0, 0, stage.x * stage.dpr, stage.y * stage.dpr);
-        c.font = that.fontSize + " sans-serif";
-        var spacing = 0;
-        word.forEach(function (w, index) {
-          if (index > that.currentCharacter) {
-            c.fillStyle = that.getRandomColor();
-          } else {
-            c.fillStyle = that.textColor;
-          }
-          c.fillText(w, that.position.x + spacing, that.position.y);
-          spacing += c.measureText(w).width;
-        });
-      } else {
-        if (that.currentCharacter === that.currentWordLength) {
-          that.needUpdate = false;
-        }
-        this.holder.innerHTML = "";
-        word.forEach(function (w, index) {
-          var color = null;
-          if (index > that.currentCharacter) {
-            color = that.getRandomColor();
-          } else {
-            color = that.textColor;
-          }
-          that.holder.appendChild(that.generateSingleCharacter(color, w));
-        });
-      }
-      this.then = this.now - (this.delta % this.interval);
-    }
-  };
-
-  this.restart = function () {
-    this.currentCharacter = 0;
-    this.needUpdate = true;
-  };
-
-  function update(time) {
-    time++;
-    if (that.needUpdate) {
-      that.updateCharacter(time);
-    }
-    requestAnimationFrame(update);
-  }
-
-  this.writeWord(this.holder.innerHTML);
-
-  console.log(this.currentWord);
-  update(time);
+  setMorph(fraction);
 }
 
-var headline = document.getElementById("headline");
-var text = document.getElementById("text");
-var shuffler = document.getElementById("shuffler");
+// A lot of the magic happens here, this is what applies the blur filter to the text.
+function setMorph(fraction) {
+  // fraction = Math.cos(fraction * Math.PI) / -2 + .5;
 
-var headText = new WordShuffler(headline, {
-  textColor: "#000",
-  timeOffset: 18,
-  mixCapital: true,
-  mixSpecialCharacters: true,
-});
+  elts.text2.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`;
+  elts.text2.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`;
 
-var pText = new WordShuffler(text, {
-  textColor: "#fff",
-  timeOffset: 2,
-});
+  fraction = 1 - fraction;
+  elts.text1.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`;
+  elts.text1.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`;
 
-var buttonText = new WordShuffler(shuffler, {
-  textColor: "tomato",
-  timeOffset: 10,
-});
+  elts.text1.textContent = texts[textIndex % texts.length];
+  elts.text2.textContent = texts[(textIndex + 1) % texts.length];
+}
 
-shuffler.addEventListener("click", function () {
-  headText.restart();
-  pText.restart();
-  buttonText.restart();
-});
+function doCooldown() {
+  morph = 0;
+
+  elts.text2.style.filter = "";
+  elts.text2.style.opacity = "100%";
+
+  elts.text1.style.filter = "";
+  elts.text1.style.opacity = "0%";
+}
+
+// Animation loop, which is called every frame.
+function animate() {
+  requestAnimationFrame(animate);
+
+  let newTime = new Date();
+  let shouldIncrementIndex = cooldown > 0;
+  let dt = (newTime - time) / 1000;
+  time = newTime;
+
+  cooldown -= dt;
+
+  if (cooldown <= 0) {
+    if (shouldIncrementIndex) {
+      textIndex++;
+    }
+
+    doMorph();
+  } else {
+    doCooldown();
+  }
+}
+
+// Start the animation.
+animate();
